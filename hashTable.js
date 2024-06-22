@@ -34,11 +34,33 @@ class HashTable {
     if (this.checkDuplicateKeys(key, value)) {
       return;
     }
+    if (this.loadFactor * this.bucket.length > this.length()) {
+      // grow bucket here
+    }
+    // if (this.bucket.length * this.loadFactor > )
     const newHashEntry = new HashInput(key, value);
 
     const keyHashed = this.hash(key);
 
     this.bucket[keyHashed] = newHashEntry;
+  }
+  length() {
+    let storedKeysTotal = 0;
+
+    for (let entry of this.bucket) {
+      if (entry) {
+        storedKeysTotal++;
+      }
+    }
+    return storedKeysTotal;
+  }
+  get(key) {
+    for (let entry of this.bucket) {
+      if (entry && entry.key === key) {
+        return entry.value;
+      }
+    }
+    return null;
   }
 }
 
@@ -46,4 +68,5 @@ const hashTable = new HashTable(16);
 hashTable.set("Blah", "blah-surname");
 hashTable.set("Alex", "morgun");
 hashTable.set("Malcolm", "duren");
-hashTable.set("Arnold", "schwarnager");
+// hashTable.set("Arnold", "schwarnager");
+// hashTable.set("Benjamin", "ROssboo");
