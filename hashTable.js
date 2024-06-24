@@ -14,7 +14,7 @@ class HashEntry {
 class HashTable {
   constructor(bucket = 5) {
     this.bucket = new Array(bucket);
-    this.loadFactor = 0.7;
+    this.loadFactor = 0.75;
     this.next = null;
   }
   hash(key) {
@@ -41,11 +41,11 @@ class HashTable {
     if (this.checkDuplicateKeys(key, value)) {
       return;
     }
-    // if (this.length() > this.loadFactor * this.bucket.length) {
-    //   const oldBucket = this.bucket;
-    //   const newArray = new Array(5);
-    //   this.bucket = oldBucket.concat(newArray);
-    // }
+    if (this.length() > this.loadFactor * this.bucket.length) {
+      const oldBucket = this.bucket;
+      const newArray = new Array(5);
+      this.bucket = oldBucket.concat(newArray);
+    }
 
     const newHashEntry = new HashEntry(key, value);
 
@@ -111,17 +111,26 @@ class HashTable {
       return false;
     }
   }
-  remove(key) {
-    if (this.has(key)) {
-      this.bucket[this.hash(key)] = undefined;
-      return true;
-    } else return false;
-  }
+  // remove(key) {
+  //   if (this.has(key)) {
+  //     console.log(this.hash(key));
+  //     const keyHashed = this.hash(key);
+  //     console.log(this.bucket[keyHashed]);
+  //     return true;
+  //   } else return false;
+  // }
   keys() {
     let arrayOfKeys = [];
     for (let entry of this.bucket) {
-      if (entry) {
+      if (!entry) continue;
+      if (entry && !entry.head) {
         arrayOfKeys.push(entry.key);
+      } else if (entry.head) {
+        let current = entry.head;
+        while (current) {
+          arrayOfKeys.push(current.key);
+          current = current.next;
+        }
       }
     }
     return arrayOfKeys;
@@ -129,8 +138,15 @@ class HashTable {
   values() {
     let arrayOfValues = [];
     for (let entry of this.bucket) {
-      if (entry) {
+      if (!entry) continue;
+      if (entry && !entry.head) {
         arrayOfValues.push(entry.value);
+      } else if (entry.head) {
+        let current = entry.head;
+        while (current) {
+          arrayOfValues.push(current.value);
+          current = current.next;
+        }
       }
     }
     return arrayOfValues;
@@ -154,12 +170,12 @@ hashTable.set("Arnold", "bigboy");
 hashTable.set("Harry", "bigboy");
 hashTable.set("Ron", "weasley");
 hashTable.set("Benjamin", "ROssboo");
-hashTable.set("Emily", "ROssboo");
-hashTable.set("Kakao", "ROssboo");
+// hashTable.set("Emily", "ROssboo");
+// hashTable.set("Kakao", "ROssboo");
 // hashTable.set("Old Man", "ROssboo");
 // hashTable.set("Be", "ROssboo");
 // hashTable.set("Clam down", "ROssboo");
 // hashTable.set("Another", "ROssboo");
 // hashTable.set("Here we go again", "ROssboo");
-// console.log(hashTable.bucket)
-console.log(hashTable.get("Kakao"));
+console.log(hashTable.bucket);
+console.log(hashTable.values());
