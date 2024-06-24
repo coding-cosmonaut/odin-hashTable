@@ -1,3 +1,9 @@
+class LinkedListDataStructure {
+  constructor(head) {
+    this.head = head;
+  }
+}
+
 class HashEntry {
   constructor(key, value) {
     this.key = key;
@@ -6,9 +12,10 @@ class HashEntry {
 }
 
 class HashTable {
-  constructor(bucket) {
+  constructor(bucket = 5) {
     this.bucket = new Array(bucket);
-    this.loadFactor = 0.8;
+    this.loadFactor = 0.7;
+    this.next = null;
   }
   hash(key) {
     let hashCode = 0;
@@ -34,30 +41,65 @@ class HashTable {
     if (this.checkDuplicateKeys(key, value)) {
       return;
     }
-    if (this.loadFactor * this.bucket.length > this.length()) {
-      // grow bucket here
-    }
-    // if (this.bucket.length * this.loadFactor > )
+    // if (this.length() > this.loadFactor * this.bucket.length) {
+    //   const oldBucket = this.bucket;
+    //   const newArray = new Array(5);
+    //   this.bucket = oldBucket.concat(newArray);
+    // }
+
     const newHashEntry = new HashEntry(key, value);
 
     const keyHashed = this.hash(key);
 
-    this.bucket[keyHashed] = newHashEntry;
+    if (this.bucket[keyHashed] && !this.bucket[keyHashed].head) {
+      const newLinkedList = new LinkedListDataStructure(this.bucket[keyHashed]);
+
+      this.bucket[keyHashed] = newLinkedList;
+
+      newLinkedList.head.next = newHashEntry;
+    } else if (this.bucket[keyHashed] && this.bucket[keyHashed].head) {
+      let current = this.bucket[keyHashed].head;
+      while (current) {
+        if (!current.next) {
+          current.next = newHashEntry;
+          return;
+        }
+        current = current.next;
+      }
+    } else {
+      this.bucket[keyHashed] = newHashEntry;
+    }
   }
   length() {
     let storedKeysTotal = 0;
 
     for (let entry of this.bucket) {
-      if (entry) {
+      if (!entry) continue;
+      if (!entry.head) {
         storedKeysTotal++;
+      } else if (entry.head) {
+        let current = entry.head;
+        while (current) {
+          storedKeysTotal++;
+          current = current.next;
+        }
       }
     }
     return storedKeysTotal;
   }
   get(key) {
     for (let entry of this.bucket) {
-      if (entry && entry.key === key) {
+      if (!entry) continue;
+      if (!entry.head && entry.key === key) {
         return entry.value;
+      } else if (entry.head) {
+        let current = entry.head;
+        while (current) {
+          if (current.key === key) {
+            return current.value;
+          }
+          current = current.next;
+        }
       }
     }
     return null;
@@ -104,13 +146,20 @@ class HashTable {
   }
 }
 
-const hashTable = new HashTable(16);
+const hashTable = new HashTable();
 hashTable.set("Blah", "blah-surname");
 hashTable.set("Alex", "morgun");
 hashTable.set("Malcolm", "duren");
 hashTable.set("Arnold", "bigboy");
-// hashTable.set("Arnold", "schwarnager");
-// hashTable.set("Benjamin", "ROssboo");
-console.log(hashTable.keys());
-console.log(hashTable.values());
-console.log(hashTable.entries());
+hashTable.set("Harry", "bigboy");
+hashTable.set("Ron", "weasley");
+hashTable.set("Benjamin", "ROssboo");
+hashTable.set("Emily", "ROssboo");
+hashTable.set("Kakao", "ROssboo");
+// hashTable.set("Old Man", "ROssboo");
+// hashTable.set("Be", "ROssboo");
+// hashTable.set("Clam down", "ROssboo");
+// hashTable.set("Another", "ROssboo");
+// hashTable.set("Here we go again", "ROssboo");
+// console.log(hashTable.bucket)
+console.log(hashTable.get("Kakao"));
