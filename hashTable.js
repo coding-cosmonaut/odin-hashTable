@@ -154,11 +154,34 @@ class HashTable {
   entries() {
     let arrayOfEntries = [];
     for (let entry of this.bucket) {
-      if (entry) {
+      if (!entry) continue;
+      if (entry && !entry.head) {
         arrayOfEntries.push([entry.key, entry.value]);
+      } else if (entry.head) {
+        let current = entry.head;
+        while (current) {
+          arrayOfEntries.push([current.key, current.value]);
+          current = current.next;
+        }
       }
     }
     return arrayOfEntries;
+  }
+  findBaby() {
+    for (let entry of this.bucket) {
+      if (!entry) continue;
+      if (entry && !entry.head && entry.key === "Emily") {
+        return entry;
+      } else if (entry.head) {
+        let current = entry.head;
+        while (current) {
+          if (current.key === "Emily") {
+            return current;
+          }
+          current = current.next;
+        }
+      }
+    }
   }
 }
 
@@ -170,12 +193,12 @@ hashTable.set("Arnold", "bigboy");
 hashTable.set("Harry", "bigboy");
 hashTable.set("Ron", "weasley");
 hashTable.set("Benjamin", "ROssboo");
-// hashTable.set("Emily", "ROssboo");
-// hashTable.set("Kakao", "ROssboo");
-// hashTable.set("Old Man", "ROssboo");
-// hashTable.set("Be", "ROssboo");
-// hashTable.set("Clam down", "ROssboo");
-// hashTable.set("Another", "ROssboo");
-// hashTable.set("Here we go again", "ROssboo");
-console.log(hashTable.bucket);
-console.log(hashTable.values());
+hashTable.set("Emily", "my babbbbaaayyy");
+hashTable.set("Kakao", "ROssboo");
+hashTable.set("Old Man", "ROssboo");
+hashTable.set("Be", "ROssboo");
+hashTable.set("Clam down", "ROssboo");
+hashTable.set("Another", "ROssboo");
+hashTable.set("Here we go again", "ROssboo");
+// console.log(hashTable.bucket);
+console.log(hashTable.findBaby());
