@@ -42,9 +42,8 @@ class HashTable {
       return;
     }
     if (this.length() > this.loadFactor * this.bucket.length) {
-      const oldBucket = this.bucket;
       const newArray = new Array(5);
-      this.bucket = oldBucket.concat(newArray);
+      this.bucket = [...this.bucket, ...newArray];
     }
 
     const newHashEntry = new HashEntry(key, value);
@@ -66,9 +65,7 @@ class HashTable {
         }
         current = current.next;
       }
-    } else {
-      this.bucket[keyHashed] = newHashEntry;
-    }
+    } else this.bucket[keyHashed] = newHashEntry;
   }
   length() {
     let storedKeysTotal = 0;
@@ -77,7 +74,7 @@ class HashTable {
       if (!entry) continue;
       if (!entry.head) {
         storedKeysTotal++;
-      } else if (entry.head) {
+      } else {
         let current = entry.head;
         while (current) {
           storedKeysTotal++;
@@ -90,9 +87,9 @@ class HashTable {
   get(key) {
     for (let entry of this.bucket) {
       if (!entry) continue;
-      if (!entry.head && entry.key === key) {
+      if (entry.key === key) {
         return entry.value;
-      } else if (entry.head) {
+      } else {
         let current = entry.head;
         while (current) {
           if (current.key === key) {
@@ -111,21 +108,41 @@ class HashTable {
       return false;
     }
   }
-  // remove(key) {
-  //   if (this.has(key)) {
-  //     console.log(this.hash(key));
-  //     const keyHashed = this.hash(key);
-  //     console.log(this.bucket[keyHashed]);
-  //     return true;
-  //   } else return false;
-  // }
+  remove(key) {
+    if (this.has(key)) {
+      for (let i = 0; i < this.bucket.length; i++) {
+        try {
+          if (this.bucket[i].key === key) {
+            this.bucket[i] = undefined;
+            return true;
+          } else if (this.bucket[i].head) {
+            if (this.bucket[i].head.key === key) {
+              this.bucket[i].head = this.bucket[i].head.next;
+              return true;
+            }
+            let previous;
+            let current = this.bucket[i].head;
+            while (current) {
+              if (current.key === key) {
+                previous.next = current.next ? current.next : undefined;
+                return true;
+              }
+              previous = current;
+              current = current.next;
+            }
+          }
+        } catch {}
+      }
+    }
+    return false;
+  }
   keys() {
     let arrayOfKeys = [];
     for (let entry of this.bucket) {
       if (!entry) continue;
-      if (entry && !entry.head) {
+      if (!entry.head) {
         arrayOfKeys.push(entry.key);
-      } else if (entry.head) {
+      } else {
         let current = entry.head;
         while (current) {
           arrayOfKeys.push(current.key);
@@ -139,9 +156,9 @@ class HashTable {
     let arrayOfValues = [];
     for (let entry of this.bucket) {
       if (!entry) continue;
-      if (entry && !entry.head) {
+      if (!entry.head) {
         arrayOfValues.push(entry.value);
-      } else if (entry.head) {
+      } else {
         let current = entry.head;
         while (current) {
           arrayOfValues.push(current.value);
@@ -155,7 +172,7 @@ class HashTable {
     let arrayOfEntries = [];
     for (let entry of this.bucket) {
       if (!entry) continue;
-      if (entry && !entry.head) {
+      if (!entry.head) {
         arrayOfEntries.push([entry.key, entry.value]);
       } else if (entry.head) {
         let current = entry.head;
@@ -167,10 +184,14 @@ class HashTable {
     }
     return arrayOfEntries;
   }
+  clear() {
+    const newHashMapBucket = new Array(this.bucket.length);
+    this.bucket = newHashMapBucket;
+  }
   findBaby() {
     for (let entry of this.bucket) {
       if (!entry) continue;
-      if (entry && !entry.head && entry.key === "Emily") {
+      if (!entry.head && entry.key === "Emily") {
         return entry;
       } else if (entry.head) {
         let current = entry.head;
@@ -195,10 +216,4 @@ hashTable.set("Ron", "weasley");
 hashTable.set("Benjamin", "ROssboo");
 hashTable.set("Emily", "my babbbbaaayyy");
 hashTable.set("Kakao", "ROssboo");
-hashTable.set("Old Man", "ROssboo");
-hashTable.set("Be", "ROssboo");
-hashTable.set("Clam down", "ROssboo");
-hashTable.set("Another", "ROssboo");
-hashTable.set("Here we go again", "ROssboo");
-// console.log(hashTable.bucket);
-console.log(hashTable.findBaby());
+
